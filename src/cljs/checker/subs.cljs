@@ -3,6 +3,6 @@
    [re-frame.core :as re-frame]))
 
 (re-frame/reg-sub
- ::name
+ ::page-index
  (fn [db]
-   (:name db)))
+   (:page-index db)))

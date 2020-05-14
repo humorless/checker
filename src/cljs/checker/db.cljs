@@ -1,4 +1,4 @@
 (ns checker.db)
 
 (def default-db
-  {:name "re-frame"})
+  {:page-index 0})
