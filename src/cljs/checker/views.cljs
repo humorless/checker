@@ -3,7 +3,8 @@
    [checker.config :as config]
    [re-frame.core :as re-frame]
    [reagent.core :as reagent]
-   [checker.subs :as subs]))
+   [checker.subs :as subs]
+   [clojure.string :as string]))
 
 (defn switch [id val-atom]
   [:select {:id id :on-change (fn [e]
@@ -13,6 +14,30 @@
    [:option {:value "buy"} "購買型任務"]
    [:option {:value "non-buy"} "非購買型任務"]])
 
+(def cv-template "<!-- LINE Free Coins CV Tracking Code Start -->
+<script type=\"text/javascript\">
+
+
+var freecoins_cvq = [
+    {
+       app: \"FREECOINS_XXFREEXX\",
+       cv: [
+            {
+                action: \"REGISTRATION\",
+                order: \"ORDER\",
+                item: \"ITEM\",
+                t_price: \"PRICE\",
+                quantity: \"Quantity of this item purchased (optional, number)\",
+                memo: \"MEMO\"
+            }
+       ]
+    }
+];
+
+</script>
+<script src=\"https://freecoins.line-apps.com/lfc5.js\" async></script>
+<!-- LINE Free Coins CV Tracking Code End -->")
+
 (defonce r-switch (reagent/atom "buy"))
 
 (defonce free-atom (reagent/atom ""))
@@ -20,10 +45,15 @@
 (defonce item-atom (reagent/atom ""))
 (defonce price-atom (reagent/atom ""))
 (defonce memo-atom (reagent/atom ""))
+(defonce cv-atom (reagent/atom cv-template))
 
-(defn common-input [id i-atom ph]
+(defn common-input [id val-atom ph]
   [:input.w-80 {:id id
-                :placeholder ph}])
+                :placeholder ph
+                :on-change (fn [e]
+                             (reset! val-atom (-> e .-target .-value))
+                             (when config/debug?
+                               (println "debug common-input: " @val-atom)))}])
 
 (defn ph-switch-order [s]
   (if (= s "buy")
@@ -52,6 +82,23 @@
      [:div.mw6.flex.justify-between
       [:label {:for "t-price"} "t price: "] [common-input "t-price" price-atom price-ph]]]))
 
+(defn pre-block [data]
+  [:pre.w-90.pa3.ba.br2.b--black.h7.bg-white-20.hljs
+   {:id "code"}
+   data])
+
+(defn escape [in]
+  (str "\"" in  "\""))
+
+(defn replace-tmpl
+  [tmpl-str free order item price memo]
+  (-> tmpl-str
+      (string/replace-first #"XXFREEXX" free)
+      (string/replace-first #"ORDER" order)
+      (string/replace-first #"ITEM" item)
+      (string/replace-first #"PRICE" price)
+      (string/replace-first #"MEMO" memo)))
+
 (defn input-page [p]
   (let [free-ph  "請輸入 FREECOINS_後五碼，如 17785 "
         memo-ph  "選填額外資訊，如：促銷註記"]
@@ -65,7 +112,18 @@
      [div-middle @r-switch]
      [:div.mw6.flex.justify-between
       [:label {:for "memo"} "Memo: "]
-      [common-input "memo" memo-atom memo-ph]]]))
+      [common-input "memo" memo-atom memo-ph]]
+     [:div.mw6
+      [:input {:type "button" :value "confirm"
+               :on-click (fn [e]
+                           (prn (-> e .-target .-value))
+                           (reset! cv-atom
+                                   (replace-tmpl cv-template
+                                                 @free-atom @order-atom @item-atom
+                                                 @price-atom @memo-atom)))}]]
+     [:div.mw8.flex.justify-between
+      [:label {:for "code"} "CV code"]
+      [pre-block @cv-atom]]]))
 
 (defn result-page []
   (prn "result page"))
