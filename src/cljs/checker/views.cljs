@@ -6,6 +6,8 @@
    [checker.subs :as subs]
    [clojure.string :as string]))
 
+;; Templates
+
 (def cv-template "<!-- LINE Free Coins CV Tracking Code Start -->
 <script type=\"text/javascript\">
 
@@ -31,6 +33,17 @@ var freecoins_cvq = [
 </script>
 <!-- LINE Free Coins CV Tracking Code End -->")
 
+(defn replace-tmpl
+  [tmpl-str free order item price memo]
+  (-> tmpl-str
+      (string/replace-first #"XXFREEXX" free)
+      (string/replace-first #"ORDER" order)
+      (string/replace-first #"ITEM" item)
+      (string/replace-first #"PRICE" price)
+      (string/replace-first #"MEMO" memo)))
+
+;; State
+
 (defonce state (reagent/atom {:r-switch "buy"
                               :free     ""
                               :order    ""
@@ -39,24 +52,44 @@ var freecoins_cvq = [
                               :memo     ""
                               :cv       cv-template}))
 
+;; State handlers
+
+(defn handle-switch-change
+  [e]
+  (swap! state assoc :r-switch (-> e .-target .-value))
+  (when config/debug?
+    (println "debug the value of seletion:" @state)))
+
+(defn handle-input-change
+  [entity-key e]
+  (swap! state
+         assoc entity-key (-> e .-target .-value))
+  (when config/debug?
+    (println "debug common-input: " @state)))
+
+(defn handle-form-submit
+  [e]
+  (.. e preventDefault)
+  (prn (-> e .-target .-value))
+  (let [{:keys [free order item price memo]} @state]
+    (swap! state
+           assoc :cv
+           (replace-tmpl cv-template
+                         free order item price memo))))
+
+;; UI elements
+
 (defn switch [id]
   [:select {:id        id
-            :on-change (fn [e]
-                         (swap! state :r-switch (-> e .-target .-value))
-                         (when config/debug?
-                           (println "debug the value of seletion:" @state)))}
+            :on-change handle-switch-change}
    [:option {:value "buy"} "購買型任務"]
    [:option {:value "non-buy"} "非購買型任務"]])
 
 (defn common-input [id entity-key ph]
-  [:input.dtc {:id id
-               :size 60
+  [:input.dtc {:id          id
+               :size        60
                :placeholder ph
-               :on-change (fn [e]
-                            (swap! state
-                                   assoc entity-key (-> e .-target .-value))
-                            (when config/debug?
-                              (println "debug common-input: " @state)))}])
+               :on-change   (partial handle-input-change entity-key)}])
 
 (defn ph-switch-order [s]
   (if (= s "buy")
@@ -96,25 +129,11 @@ var freecoins_cvq = [
 (defn escape [in]
   (str "\"" in  "\""))
 
-(defn replace-tmpl
-  [tmpl-str free order item price memo]
-  (-> tmpl-str
-      (string/replace-first #"XXFREEXX" free)
-      (string/replace-first #"ORDER" order)
-      (string/replace-first #"ITEM" item)
-      (string/replace-first #"PRICE" price)
-      (string/replace-first #"MEMO" memo)))
-
 (defn input-page [p]
-  (let [free-ph        "請輸入 FREECOINS_後五碼，如 17785 "
-        memo-ph        "選填額外資訊，如：促銷註記"
-        {:keys [r-switch
-                free
-                order
-                item
-                price
-                memo
-                cv]} @state]
+  (let [free-ph            "請輸入 FREECOINS_後五碼，如 17785 "
+        memo-ph            "選填額外資訊，如：促銷註記"
+        {:keys [cv
+                r-switch]} @state]
     [:main.helvetica.dark-gray.ml3
      [:form
       [:h1 "CPA CV Tag Format Generator"]
@@ -133,14 +152,9 @@ var freecoins_cvq = [
       [:div
        [:div]
        [:div
-        [:input {:type     "submit" :value "generate"
-                 :on-click (fn [e]
-                             (.. e preventDefault)
-                             (prn (-> e .-target .-value))
-                             (swap! state
-                                    assoc :cv
-                                    (replace-tmpl cv-template
-                                                  free order item price memo)))}]]]]
+        [:input {:type     "submit"
+                 :value    "generate"
+                 :on-click handle-form-submit}]]]]
      [:div.flex.items-center
       [:label.mr5
        {:for "code"}
