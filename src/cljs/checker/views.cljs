@@ -81,6 +81,7 @@ var freecoins_cvq = [
 
 (defn switch [id]
   [:select {:id        id
+            :value     (:r-switch @state)
             :on-change handle-switch-change}
    [:option {:value "buy"} "購買型任務"]
    [:option {:value "non-buy"} "非購買型任務"]])
@@ -89,6 +90,7 @@ var freecoins_cvq = [
   [:input.dtc {:id          id
                :size        60
                :placeholder ph
+               :value       (entity-key @state)
                :on-change   (partial handle-input-change entity-key)}])
 
 (defn ph-switch-order [s]
