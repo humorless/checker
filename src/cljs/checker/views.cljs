@@ -27,7 +27,7 @@ var freecoins_cvq = [
                 order: \"ORDER\",
                 item: \"ITEM\",
                 t_price: \"PRICE\",
-                quantity: \"Quantity of this item purchased (optional, number)\",
+                quantity: \"1\",
                 memo: \"MEMO\"
             }
        ]
@@ -35,7 +35,8 @@ var freecoins_cvq = [
 ];
 
 </script>
-<script src=\"https://freecoins.line-apps.com/lfc5.js\" async></script>
+<script src=\"https://freecoins.line-apps.com/lfc5.js\" async>
+</script>
 <!-- LINE Free Coins CV Tracking Code End -->")
 
 (defonce r-switch (reagent/atom "buy"))
@@ -48,12 +49,13 @@ var freecoins_cvq = [
 (defonce cv-atom (reagent/atom cv-template))
 
 (defn common-input [id val-atom ph]
-  [:input.w-80 {:id id
-                :placeholder ph
-                :on-change (fn [e]
-                             (reset! val-atom (-> e .-target .-value))
-                             (when config/debug?
-                               (println "debug common-input: " @val-atom)))}])
+  [:input.dtc {:id id
+               :size 60
+               :placeholder ph
+               :on-change (fn [e]
+                            (reset! val-atom (-> e .-target .-value))
+                            (when config/debug?
+                              (println "debug common-input: " @val-atom)))}])
 
 (defn ph-switch-order [s]
   (if (= s "buy")
@@ -75,15 +77,18 @@ var freecoins_cvq = [
         item-ph (ph-switch-item s)
         price-ph (ph-switch-price s)]
     [:<>
-     [:div.mw6.flex.justify-between
-      [:label {:for "order"} "Order: "] [common-input "order" order-atom order-ph]]
-     [:div.mw6.flex.justify-between
-      [:label {:for "item"} "Item: "] [common-input "item" item-atom item-ph]]
-     [:div.mw6.flex.justify-between
-      [:label {:for "t-price"} "t price: "] [common-input "t-price" price-atom price-ph]]]))
+     [:div.dt-row
+      [:label.dtc {:for "order"} "Order: "] [common-input "order" order-atom order-ph]
+      [:div.dtc "max 128 bytes (僅限填寫英文/數字，全形符號視為2~3bytes)"]]
+     [:div.dt-row
+      [:label.dtc {:for "item"} "Item: "] [common-input "item" item-atom item-ph]
+      [:div.dtc "max 255 bytes (僅限填寫英文/數字，全形符號視為2~3bytes)"]]
+     [:div.dt-row
+      [:label.dtc {:for "t-price"} "t price: "] [common-input "t-price" price-atom price-ph]
+      [:div.dtc "max 12 位數字 (可接受小數點後2位)，請勿使用千分位符號"]]]))
 
 (defn pre-block [data]
-  [:pre.w-90.pa3.ba.br2.b--black.h7.bg-white-20.hljs
+  [:pre.mw7.pa3.ba.br2.b--black.h7.bg-white-20.hljs
    {:id "code"}
    data])
 
@@ -103,26 +108,33 @@ var freecoins_cvq = [
   (let [free-ph  "請輸入 FREECOINS_後五碼，如 17785 "
         memo-ph  "選填額外資訊，如：促銷註記"]
     [:main.helvetica.dark-gray.ml3
-     [:h1 "CPA CV Tag Format Checker"]
-     [:div.mw6.flex.justify-between
-      [:label {:for "switch"} "任務類型: "] [switch "switch" r-switch]]
-     [:div.mw6.flex.justify-between
-      [:label {:for "freecoin"} "Freecoins 參數: "]
-      [common-input "freecoin" free-atom free-ph]]
-     [div-middle @r-switch]
-     [:div.mw6.flex.justify-between
-      [:label {:for "memo"} "Memo: "]
-      [common-input "memo" memo-atom memo-ph]]
-     [:div.mw6
-      [:input {:type "button" :value "confirm"
-               :on-click (fn [e]
-                           (prn (-> e .-target .-value))
-                           (reset! cv-atom
-                                   (replace-tmpl cv-template
-                                                 @free-atom @order-atom @item-atom
-                                                 @price-atom @memo-atom)))}]]
-     [:div.mw8.flex.justify-between
-      [:label {:for "code"} "CV code"]
+     [:h1 "CPA CV Tag Format Generator"]
+     [:div.dt--fixed
+      [:div.dt-row
+       [:label.dtc {:for "switch"} "任務類型: "] [switch "switch" r-switch]]
+      [:div.dt-row
+       [:label.dtc {:for "freecoin"} "Freecoins 參數: "]
+       [common-input "freecoin" free-atom free-ph]
+       [:div.dtc]]
+      [div-middle @r-switch]
+      [:div.dt-row
+       [:label.dtc {:for "memo"} "Memo: "]
+       [common-input "memo" memo-atom memo-ph]
+       [:div.dtc "max 255 bytes"]]]
+     [:div
+      [:div]
+      [:div
+       [:input {:type "button" :value "generate"
+                :on-click (fn [e]
+                            (prn (-> e .-target .-value))
+                            (reset! cv-atom
+                                    (replace-tmpl cv-template
+                                                  @free-atom @order-atom @item-atom
+                                                  @price-atom @memo-atom)))}]]]
+     [:div.flex.items-center
+      [:label.mr5
+       {:for "code"}
+       "CV code"]
       [pre-block @cv-atom]]]))
 
 (defn result-page []
