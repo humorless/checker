@@ -108,29 +108,31 @@ var freecoins_cvq = [
   (let [free-ph  "請輸入 FREECOINS_後五碼，如 17785 "
         memo-ph  "選填額外資訊，如：促銷註記"]
     [:main.helvetica.dark-gray.ml3
-     [:h1 "CPA CV Tag Format Generator"]
-     [:div.dt--fixed
-      [:div.dt-row
-       [:label.dtc {:for "switch"} "任務類型: "] [switch "switch" r-switch]]
-      [:div.dt-row
-       [:label.dtc {:for "freecoin"} "Freecoins 參數: "]
-       [common-input "freecoin" free-atom free-ph]
-       [:div.dtc]]
-      [div-middle @r-switch]
-      [:div.dt-row
-       [:label.dtc {:for "memo"} "Memo: "]
-       [common-input "memo" memo-atom memo-ph]
-       [:div.dtc "max 255 bytes"]]]
-     [:div
-      [:div]
+     [:form
+      [:h1 "CPA CV Tag Format Generator"]
+      [:div.dt--fixed
+       [:div.dt-row
+        [:label.dtc {:for "switch"} "任務類型: "] [switch "switch" r-switch]]
+       [:div.dt-row
+        [:label.dtc {:for "freecoin"} "Freecoins 參數: "]
+        [common-input "freecoin" free-atom free-ph]
+        [:div.dtc]]
+       [div-middle @r-switch]
+       [:div.dt-row
+        [:label.dtc {:for "memo"} "Memo: "]
+        [common-input "memo" memo-atom memo-ph]
+        [:div.dtc "max 255 bytes"]]]
       [:div
-       [:input {:type "button" :value "generate"
-                :on-click (fn [e]
-                            (prn (-> e .-target .-value))
-                            (reset! cv-atom
-                                    (replace-tmpl cv-template
-                                                  @free-atom @order-atom @item-atom
-                                                  @price-atom @memo-atom)))}]]]
+       [:div]
+       [:div
+        [:input {:type "submit" :value "generate"
+                 :on-click (fn [e]
+                             (.. e preventDefault)
+                             (prn (-> e .-target .-value))
+                             (reset! cv-atom
+                                     (replace-tmpl cv-template
+                                                   @free-atom @order-atom @item-atom
+                                                   @price-atom @memo-atom)))}]]]]
      [:div.flex.items-center
       [:label.mr5
        {:for "code"}
