@@ -1,4 +1,4 @@
-(defproject checker "0.1.0-SNAPSHOT"
+(defproject checker "0.1.1-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [org.clojure/clojurescript "1.10.764"
                   :exclusions [com.google.javascript/closure-compiler-unshaded
@@ -37,7 +37,9 @@
                                                           day8.re-frame-10x.preload]}}
                                :dev {:compiler-options {:closure-defines {re-frame.trace.trace-enabled? true
                                                                           day8.re-frame.tracing.trace-enabled? true}}}
-                               :release {:build-options
+                               :release {:output-dir "docs/js"
+                                         :module-hash-names 8
+                                         :build-options
                                          {:ns-aliases
                                           {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}
 
