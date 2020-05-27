@@ -70,14 +70,18 @@ var freecoins_cvq = [
 (defn handle-form-submit
   [e]
   (.. e preventDefault)
-  (prn (-> e .-target .-value))
-  (let [{:keys [free order item price memo]} @state]
-    (swap! state
-           assoc :cv
-           (replace-tmpl cv-template
-                         free order item price memo))))
+  (let [chk (-> js/document (.getElementById "form-id") (.checkValidity))]
+    (println "form validation result: " chk)
+    (-> js/document (.getElementById "form-id") (.reportValidity))
+    (when chk
+      (let [{:keys [free order item price memo]} @state]
+        (swap! state
+               assoc :cv
+               (replace-tmpl cv-template
+                             free order item price memo))))))
 
 ;; UI elements
+
 
 (defn switch [id]
   [:select {:id        id
@@ -86,10 +90,12 @@ var freecoins_cvq = [
    [:option {:value "buy"} "購買型任務"]
    [:option {:value "non-buy"} "非購買型任務"]])
 
-(defn common-input [id entity-key ph]
+(defn common-input [id entity-key ph pattern req]
   [:input.dtc {:id          id
                :size        60
                :placeholder ph
+               :required    req
+               :pattern     pattern
                :value       (entity-key @state)
                :on-change   (partial handle-input-change entity-key)}])
 
@@ -114,13 +120,13 @@ var freecoins_cvq = [
         price-ph (ph-switch-price s)]
     [:<>
      [:div.dt-row
-      [:label.dtc {:for "order"} "Order: "] [common-input "order" :order order-ph]
+      [:label.dtc {:for "order"} "Order: "] [common-input "order" :order order-ph "\\w{1,128}" true]
       [:div.dtc "max 128 bytes (僅限填寫英文/數字，全形符號視為2~3bytes)"]]
      [:div.dt-row
-      [:label.dtc {:for "item"} "Item: "] [common-input "item" :item item-ph]
+      [:label.dtc {:for "item"} "Item: "] [common-input "item" :item item-ph "\\w{1,255}" true]
       [:div.dtc "max 255 bytes (僅限填寫英文/數字，全形符號視為2~3bytes)"]]
      [:div.dt-row
-      [:label.dtc {:for "t-price"} "t price: "] [common-input "t-price" :price price-ph]
+      [:label.dtc {:for "t-price"} "t price: "] [common-input "t-price" :price price-ph "\\d{1,12}|\\d{1,11}\\.\\d|\\d{1,10}\\.\\d{2}" true]
       [:div.dtc "max 12 位數字 (可接受小數點後2位)，請勿使用千分位符號"]]]))
 
 (defn pre-block [data]
@@ -137,19 +143,19 @@ var freecoins_cvq = [
         {:keys [cv
                 r-switch]} @state]
     [:main.helvetica.dark-gray.ml3
-     [:form
+     [:form {:id "form-id"}
       [:h1 "CPA CV Tag Format Generator"]
       [:div.dt--fixed
        [:div.dt-row
         [:label.dtc {:for "switch"} "任務類型: "] [switch "switch"]]
        [:div.dt-row
         [:label.dtc {:for "freecoin"} "Freecoins 參數: "]
-        [common-input "freecoin" :free free-ph]
+        [common-input "freecoin" :free free-ph "\\d{5}" true]
         [:div.dtc]]
        [div-middle r-switch]
        [:div.dt-row
         [:label.dtc {:for "memo"} "Memo: "]
-        [common-input "memo" :memo memo-ph]
+        [common-input "memo" :memo memo-ph ".*" false]
         [:div.dtc "max 255 bytes"]]]
       [:div
        [:div]
