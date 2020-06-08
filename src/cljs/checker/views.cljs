@@ -10,7 +10,8 @@
 
 (def cv-template "<!-- LINE Free Coins CV Tracking Code Start -->
 <script type=\"text/javascript\">
-
+// This is just a sample code.
+// Please make modification according to your needs.
 
 var freecoins_cvq = [
     {
@@ -80,6 +81,14 @@ var freecoins_cvq = [
                (replace-tmpl cv-template
                              free order item price memo))))))
 
+(defn copy-to-clipboard [v]
+  (let [el (js/document.createElement "textarea")]
+    (set! (.-value el) v)
+    (.appendChild js/document.body el)
+    (.select el)
+    (js/document.execCommand "copy")
+    (.removeChild js/document.body el)))
+
 ;; UI elements
 
 
@@ -121,13 +130,13 @@ var freecoins_cvq = [
     [:<>
      [:div.dt-row
       [:label.dtc {:for "order"} "Order: "] [common-input "order" :order order-ph "\\w{1,128}" true]
-      [:div.dtc "max 128 bytes (僅限填寫英文/數字，全形符號視為2~3bytes)"]]
+      [:div.dtc "max 128 bytes (僅限填寫半形英文/數字)"]]
      [:div.dt-row
       [:label.dtc {:for "item"} "Item: "] [common-input "item" :item item-ph "\\w{1,255}" true]
-      [:div.dtc "max 255 bytes (僅限填寫英文/數字，全形符號視為2~3bytes)"]]
+      [:div.dtc "max 255 bytes (僅限填寫半形英文/數字)"]]
      [:div.dt-row
       [:label.dtc {:for "t-price"} "t price: "] [common-input "t-price" :price price-ph "\\d{1,12}|\\d{1,11}\\.\\d|\\d{1,10}\\.\\d{2}" true]
-      [:div.dtc "max 12 位數字 (可接受小數點後2位)，請勿使用千分位符號"]]]))
+      [:div.dtc "max 12 位數字 (可接受小數點後2位) ，請勿使用千分位符號"]]]))
 
 (defn pre-block [data]
   [:pre.mw7.pa3.ba.br2.b--black.h7.bg-white-20.hljs
@@ -151,7 +160,7 @@ var freecoins_cvq = [
        [:div.dt-row
         [:label.dtc {:for "freecoin"} "Freecoins 參數: "]
         [common-input "freecoin" :free free-ph "\\d{5}" true]
-        [:div.dtc]]
+        [:div.dtc "請填 5 碼數字"]]
        [div-middle r-switch]
        [:div.dt-row
         [:label.dtc {:for "memo"} "Memo: "]
@@ -162,7 +171,11 @@ var freecoins_cvq = [
        [:div
         [:input {:type     "submit"
                  :value    "generate"
-                 :on-click handle-form-submit}]]]]
+                 :on-click handle-form-submit}]
+        [:input.ml4 {:type     "button"
+                     :value    "copy"
+                     :on-click #(do (.stopPropagation %)
+                                    (copy-to-clipboard (:cv @state)))}]]]]
      [:div.flex.items-center
       [:label.mr5
        {:for "code"}
