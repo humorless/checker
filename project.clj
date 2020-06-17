@@ -48,9 +48,7 @@
                                           {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}
 
                                :devtools {:http-root "resources/public"
-                                          :http-port 8280
-                                          :http-handler checker.handler/dev-handler
-                                          }}}}
+                                          :http-port 8280}}}}
 
   :aliases {"dev"          ["with-profile" "dev" "do"
                             ["shadow" "watch" "app"]]
