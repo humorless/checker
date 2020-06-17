@@ -190,16 +190,28 @@ var freecoins_cvq = [
   (let [default-url ""
         r-url (reagent/atom default-url)]
     (fn []
-      (let [trigger-check (fn [url]
-                            (re-frame/dispatch [::events/check-url url]))])
-      [:form {:on-submit #(do (.preventDefault %)
-                              (trigger-check @r-url))}
-       [:div {:class "mv3 dib"}
-        [:label {:class "pa2 mt2 f6", :for "url"} "LP URL"]]
-       [:div {:class "mv3 dib"}
-        [:input {:type "url", :class "pa2 mt2 br2 b--black-20 ba f6", :id "url", :placeholder "http://..." :on-change #(reset! r-url (-> % .-target .-value))}]]
-
-       [:button {:type "submit", :class "pointer br2 ba b--black-20 bg-green pa2 ml1 mv1 bg-animate hover-bg-light-green f6"} "Check"]])))
+      (let [resp    @(re-frame/subscribe [::subs/check-url-resp])
+            errors  @(re-frame/subscribe [::subs/check-url-errors])
+            checking @(re-frame/subscribe [::subs/checking])
+            trigger-check (fn [url]
+                            (re-frame/dispatch [::events/check-url url]))]
+        [:form {:on-submit #(do (.preventDefault %)
+                                (trigger-check @r-url))}
+         [:div {:class "mv3 dib"}
+          [:label {:class "pa2 mt2 f6"
+                   :for "url"} "LP URL"]]
+         [:div {:class "mv3 dib"}
+          [:input {:type "url"
+                   :class "pa2 mt2 br2 b--black-20 ba f6"
+                   :id "url"
+                   :placeholder "http://..."
+                   :on-change #(reset! r-url (-> % .-target .-value))}]]
+         [:button {:type "submit"
+                   :disabled (when checking true)
+                   :class "pointer br2 ba b--black-20 bg-green pa2 ml1 mv1 bg-animate f6"}
+          "Check"]
+         (when errors [:div errors])
+         [:div resp]]))))
 
 (defmulti panels identity)
 
