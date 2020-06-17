@@ -4,10 +4,9 @@
    [reagent.dom :as rdom]
    [re-frame.core :as re-frame]
    [checker.events :as events]
+   [checker.routes :as routes]
    [checker.views :as views]
-   [checker.config :as config]
-   ))
-
+   [checker.config :as config]))
 
 (defn dev-setup []
   (when config/debug?
@@ -20,6 +19,7 @@
     (rdom/render [views/main-panel] root-el)))
 
 (defn init []
+  (routes/app-routes)
   (re-frame/dispatch-sync [::events/initialize-db])
   (dev-setup)
   (mount-root))

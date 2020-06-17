@@ -4,6 +4,8 @@
    [re-frame.core :as re-frame]
    [reagent.core :as reagent]
    [checker.subs :as subs]
+   [checker.events :as events]
+   [checker.routes :as routes]
    [clojure.string :as string]))
 
 ;; Templates
@@ -146,7 +148,7 @@ var freecoins_cvq = [
 (defn escape [in]
   (str "\"" in  "\""))
 
-(defn input-page [p]
+(defn home-panel []
   (let [free-ph            "請輸入 FREECOINS_後五碼，如 17785 "
         memo-ph            "選填額外資訊，如：促銷註記"
         {:keys [cv
@@ -182,16 +184,15 @@ var freecoins_cvq = [
        "CV code"]
       [pre-block cv]]]))
 
-(defn result-page []
-  (prn "result page"))
+(defn checker-panel []
+  [:div "hello checker"])
 
-(defn default-page []
-  (prn "default page"))
+(defmulti panels identity)
+
+(defmethod panels :home-panel [] [home-panel])
+(defmethod panels :checker-panel [] [checker-panel])
+(defmethod panels :default [] [:div])
 
 (defn main-panel []
-  (let [p-i @(re-frame/subscribe [::subs/page-index])]
-    (prn "p-i is:" p-i)
-    (case p-i
-      0 [input-page p-i]
-      1 [result-page p-i]
-      [default-page])))
+  (let [active-panel (re-frame/subscribe [::subs/active-panel])]
+    (panels @active-panel)))
