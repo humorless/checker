@@ -195,23 +195,41 @@ var freecoins_cvq = [
             checking @(re-frame/subscribe [::subs/checking])
             trigger-check (fn [url]
                             (re-frame/dispatch [::events/check-url url]))]
-        [:form {:on-submit #(do (.preventDefault %)
-                                (trigger-check @r-url))}
-         [:div {:class "mv3 dib"}
-          [:label {:class "pa2 mt2 f6"
-                   :for "url"} "LP URL"]]
-         [:div {:class "mv3 dib"}
-          [:input {:type "url"
-                   :class "pa2 mt2 br2 b--black-20 ba f6"
-                   :id "url"
-                   :placeholder "http://..."
-                   :on-change #(reset! r-url (-> % .-target .-value))}]]
-         [:button {:type "submit"
-                   :disabled (when checking true)
-                   :class "pointer br2 ba b--black-20 bg-green pa2 ml1 mv1 bg-animate f6"}
-          "Check"]
-         (when errors [:div errors])
-         [:div resp]]))))
+        [:main.helvetica.dark-gray.ml3
+         [:form {:on-submit #(do (.preventDefault %)
+                                 (trigger-check @r-url))}
+          [:h1 "CPA LP Tag Checker"]
+          [:div {:class "mv3 dib"}
+           [:label {:class "pa2 mt2 f6"
+                    :for "url"} "LP URL"]]
+          [:div {:class "mv3 dib"}
+           [:input {:type "url"
+                    :class "pa2 mt2 br2 b--black-20 ba f6"
+                    :id "url"
+                    :placeholder "http://..."
+                    :on-change #(reset! r-url (-> % .-target .-value))}]]
+          [:button {:type "submit"
+                    :disabled (when checking true)
+                    :class "pointer br2 ba b--black-20 bg-green pa2 ml1 mv1 bg-animate f6"}
+           "Check"]
+          (when errors [:div errors])
+          (when resp
+            (when config/debug?
+              (println "debug resp: " resp))
+            (let [{:keys [result debug lfc5 rcmd]} resp]
+              [:<>
+               [:div
+                [:div {:class "w-10 mv3 dib b bg-light-blue"} "probing result: "]
+                [:div {:class "ml2 mv3 dib"}
+                 [:div (str result " and " lfc5)]]]
+               [:div
+                [:div {:class "w-10 mv3 dib b bg-light-blue"} "debug info: "]
+                [:div {:class "ml2 mv3 dib"}
+                 [:div (pr-str debug)]]]
+               [:div
+                [:div {:class "w-10 mv3 dib b  bg-light-blue"} "recommend solution: "]
+                [:div {:class "ml2 mv3 dib"}
+                 [:div rcmd]]]]))]]))))
 
 (defmulti panels identity)
 
