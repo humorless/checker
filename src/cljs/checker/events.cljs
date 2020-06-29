@@ -29,7 +29,7 @@
              :http-xhrio {:method :post
                           :uri endpoint
                           :params {:url url}
-                          :timeout 16000
+                          :timeout 20000
                           :format (ajax/json-request-format)
                           :response-format (ajax/json-response-format {:keyword? true})
                           :on-success [::check-url-success]

@@ -212,6 +212,7 @@ var freecoins_cvq = [
                     :disabled (when checking true)
                     :class "pointer br2 ba b--black-20 bg-green pa2 ml1 mv1 bg-animate f6"}
            "Check"]
+          [:div {:class "ml3 mv3 dib"} "* 提醒：檢測至多會等20秒。"]
           (when errors [:div errors])
           (when resp
             (when config/debug?
@@ -219,15 +220,15 @@ var freecoins_cvq = [
             (let [{:keys [result debug lfc5 rcmd]} resp]
               [:<>
                [:div
-                [:div {:class "w-10 mv3 dib b bg-light-blue"} "probing result: "]
+                [:div {:class "w-10 mv3 dib b bg-light-blue"} "埋設狀態"]
                 [:div {:class "ml2 mv3 dib"}
-                 [:div (str result " and " lfc5)]]]
+                 [:div (str result " 且 " lfc5)]]]
                [:div
-                [:div {:class "w-10 mv3 dib b bg-light-blue"} "debug info: "]
+                [:div {:class "w-10 mv3 dib b bg-light-blue"} "Tag 字串"]
                 [:div {:class "ml2 mv3 dib"}
                  [:div (pr-str debug)]]]
                [:div
-                [:div {:class "w-10 mv3 dib b  bg-light-blue"} "recommend solution: "]
+                [:div {:class "w-10 mv3 dib b  bg-light-blue"} "建議"]
                 [:div {:class "ml2 mv3 dib"}
                  [:div rcmd]]]]))]]))))
 

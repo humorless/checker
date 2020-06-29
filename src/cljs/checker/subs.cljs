@@ -23,8 +23,8 @@
 (defn interpret-lfc5 [m]
   (let [resp (walk/keywordize-keys m)]
     (if (:exist-lfc5 resp)
-      {:lfc5 "lfc5 found"}
-      {:lfc5 "lfc5 not found"})))
+      {:lfc5 "找到 lfc5 Tag"}
+      {:lfc5 "沒有找到 lfc5 Tag"})))
 
 (defn remove-ctrl [e-tag]
   (->> e-tag
@@ -35,11 +35,11 @@
   (let [{e-tag :exist-tag} (walk/keywordize-keys m)]
     (cond
       (and e-tag  (> (count e-tag) 1))
-      {:result "Multiple tags found" :debug (remove-ctrl e-tag) :rcmd "There are multiple tags installed. Please install the only correct one."}
+      {:result "埋設了兩組以上的CPA LP Tag" :debug (remove-ctrl e-tag) :rcmd "請確認哪一個Tag為本次從LINE取得的。(可看freecoins參數(5碼)數字)"}
       (and e-tag  (= (count e-tag) 1))
-      {:result "Single tag found" :debug (remove-ctrl e-tag) :rcmd "Please check if the Freecoin 5 digits is correct"}
+      {:result "埋設了一組CPA LP Tag" :debug (remove-ctrl e-tag) :rcmd "請確認freecoins參數(5碼)數字是否與LINE提供的相同。"}
       (or (nil? e-tag) (= (count e-tag) 0))
-      {:result "tag not found" :rcmd "Please double check if Tag is correctly installed"})))
+      {:result "沒有埋設/無法找到Tag" :rcmd "1.請埋設Tag。\n2.請確認是否有設置阻擋檢視原始碼等設定。\n3.請確認Tag埋設位置（不得位於Google Tag Manager等第三方追蹤內）"})))
 
 (re-frame/reg-sub
  ::check-url-resp
