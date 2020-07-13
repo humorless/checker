@@ -17,7 +17,7 @@
             (assoc db :active-panel active-panel)))
 
 ;; --- Post check URL
-(def endpoint "http://10.20.30.40:3000/api/check-url/tags")
+(def endpoint "http://10.56.228.50:3000/api/check-url/tags")
 
 (re-frame/reg-event-fx
  ::check-url

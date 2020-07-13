@@ -41,14 +41,12 @@
                                                           day8.re-frame-10x.preload]}}
                                :dev {:compiler-options {:closure-defines {re-frame.trace.trace-enabled? true
                                                                           day8.re-frame.tracing.trace-enabled? true}}}
-                               :release {:output-dir "docs/js"
-                                         :module-hash-names 8
-                                         :build-options
+                               :release {:build-options
                                          {:ns-aliases
                                           {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}
 
                                :devtools {:http-root "resources/public"
-                                          :http-port 8280}}}}
+                                          :http-port 8080}}}}
 
   :aliases {"dev"          ["with-profile" "dev" "do"
                             ["shadow" "watch" "app"]]
