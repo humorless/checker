@@ -2,6 +2,7 @@
   (:require
    [re-frame.core :as re-frame]
    [checker.db :as db]
+   [checker.config :as config]
    [ajax.core :as ajax]
    [day8.re-frame.http-fx]
    [day8.re-frame.tracing :refer-macros [fn-traced]]))
@@ -17,7 +18,7 @@
             (assoc db :active-panel active-panel)))
 
 ;; --- Post check URL
-(def endpoint "http://10.20.30.40:3000/api/check-url/tags")
+(def endpoint config/URL)
 
 (re-frame/reg-event-fx
  ::check-url

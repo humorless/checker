@@ -26,7 +26,6 @@
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
-
   :shell {:commands {"open" {:windows ["cmd" "/c" "start"]
                              :macosx  "open"
                              :linux   "xdg-open"}}}
@@ -46,7 +45,7 @@
                                          :build-options
                                          {:ns-aliases
                                           {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}
-
+                               :closure-defines {checker.config/URL "http://10.20.30.40:3000/api/check-url/tags"}
                                :devtools {:http-root "resources/public"
                                           :http-port 8280}}}}
 
