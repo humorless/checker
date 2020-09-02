@@ -18,6 +18,7 @@
 var freecoins_cvq = [
     {
        app: \"FREECOINS_XXFREEXX\",
+       domain: \"DOMAIN\",
        cv: [
             {
                 action: \"REGISTRATION\",
@@ -37,9 +38,10 @@ var freecoins_cvq = [
 <!-- LINE Free Coins CV Tracking Code End -->")
 
 (defn replace-tmpl
-  [tmpl-str free order item price memo]
+  [tmpl-str free domain order item price memo]
   (-> tmpl-str
       (string/replace-first #"XXFREEXX" free)
+      (string/replace-first #"DOMAIN" domain)
       (string/replace-first #"ORDER" order)
       (string/replace-first #"ITEM" item)
       (string/replace-first #"PRICE" price)
@@ -49,6 +51,7 @@ var freecoins_cvq = [
 
 (defonce state (reagent/atom {:r-switch "buy"
                               :free     ""
+                              :domain   ""
                               :order    ""
                               :item     ""
                               :price    ""
@@ -77,11 +80,11 @@ var freecoins_cvq = [
     (println "form validation result: " chk)
     (-> js/document (.getElementById "form-id") (.reportValidity))
     (when chk
-      (let [{:keys [free order item price memo]} @state]
+      (let [{:keys [free domain order item price memo]} @state]
         (swap! state
                assoc :cv
                (replace-tmpl cv-template
-                             free order item price memo))))))
+                             free domain order item price memo))))))
 
 (defn copy-to-clipboard [v]
   (let [el (js/document.createElement "textarea")]
@@ -150,6 +153,7 @@ var freecoins_cvq = [
 
 (defn home-panel []
   (let [free-ph            "請輸入 FREECOINS_後五碼，如 17785 "
+        domain-ph          "請輸入 domain name, 如 .example.com "
         memo-ph            "選填額外資訊，如：促銷註記"
         {:keys [cv
                 r-switch]} @state]
@@ -163,6 +167,10 @@ var freecoins_cvq = [
         [:label.dtc {:for "freecoin"} "Freecoins 參數: "]
         [common-input "freecoin" :free free-ph "\\d{5}" true]
         [:div.dtc "請填 5 碼數字"]]
+       [:div.dt-row
+        [:label.dtc {:for "domain"} "Domain: "]
+        [common-input "domain" :domain domain-ph "\\.([a-zA-Z0-9]([-a-zA-Z0-9]{0,61}[a-zA-Z0-9])?\\.)?([a-zA-Z0-9]{1,2}([-a-zA-Z0-9]{0,252}[a-zA-Z0-9])?)\\.([a-zA-Z]{2,63})" true]
+        [:div.dtc "請填入前置句點的網域名稱"]]
        [div-middle r-switch]
        [:div.dt-row
         [:label.dtc {:for "memo"} "Memo: "]
